@@ -18,15 +18,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import com.yyc.controller.AlbumDownloader;
 import com.yyc.controller.Downloader;
 import com.yyc.controller.PhotoDownloader;
-import com.yyc.controller.PostDownloader;
 import com.yyc.model.Type;
 
 public class Utils {
-	static String TOKEN1 = "272253|6.3fb2bab1b813b90bab82ac19593dbe7e.2592000.1415199600-251529943";
-	static String TOKEN2 = "272253|6.3fb2bab1b813b90bab82ac19593dbe7e.2592000.1415199600-251529943"; // 洪新华
+	static String TOKEN1 = "272253|6.3fb2bab1b813b90bab82ac19593dbe7e.2592000.1415199600-251529943"; // 王梓
+	static String TOKEN2 = "272246|6.c3f6face74abaaa2e2388459db4de2e4.2592000.1415239200-844728688"; // 洪新华
 	static String TOKEN3 = "272255|6.6b05c20e7d6e08f54f425eae08f1904a.2592000.1415199600-271380118"; // 叶弘
 	static String TOKEN4 = "272256|6.aa8e71d505454ee418228085cf3f8e4e.2592000.1415199600-267569792"; // 叶其成
 	static String USERID = "142782732";
@@ -72,10 +70,12 @@ public class Utils {
 		return results;
 	}
 
-	public static void downloadPhotos() throws IOException, JSONException {
+	public static void downloadPhotos(String[] ids) throws IOException,
+			JSONException {
 		File f = new File("C:\\Users\\Yicheng Ye\\Desktop\\photos.json");
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String line = null;
+		int lineCount = 0;
 		while ((line = br.readLine()) != null) {
 			JSONTokener token = new JSONTokener(line);
 			JSONObject root = new JSONObject(token);
@@ -84,9 +84,12 @@ public class Utils {
 				for (int i = 0; i < objs.length(); i++) {
 					JSONObject obj = objs.getJSONObject(i);
 					URL url = new URL(obj.getString("url"));
-					File outFile = new File(
+					File dir = new File(
 							"C:\\Users\\Yicheng Ye\\Desktop\\photos\\"
-									+ obj.getString("id") + ".jpg");
+									+ ids[lineCount] + "\\");
+					if (!dir.exists())
+						dir.mkdir();
+					File outFile = new File(dir, obj.getString("id") + ".jpg");
 					BufferedOutputStream bo = new BufferedOutputStream(
 							new FileOutputStream(outFile));
 					InputStream is = url.openStream();
@@ -104,8 +107,9 @@ public class Utils {
 					bo.close();
 				}
 			}
-			br.close();
+			lineCount++;
 		}
+		br.close();
 	}
 
 	public static void main(String[] args) throws JSONException, IOException {
@@ -123,10 +127,10 @@ public class Utils {
 				"224336821", "214422837", "210203017", "205044145" };
 
 		/*
-		 * List<Type> photoResults = new ArrayList<Type>(); Downloader d = new
-		 * PhotoDownloader("1051402333"); // System.out.println(download(d));
-		 * for (int i = 0; i < albumIds.length; i++) {
-		 * photoResults.addAll(download(d)); } System.out.println(photoResults);
+		 * List<Type> photoResults = new ArrayList<Type>(); for (int i = 0; i <
+		 * albumIds.length; i++) { System.out.println(download(new
+		 * PhotoDownloader(albumIds[i])));photoResults.addAll(download(new
+		 * PhotoDownloader(albumIds[i]))); } System.out.println(photoResults);
 		 */
 
 		/*
@@ -140,5 +144,7 @@ public class Utils {
 		 * AlbumDownloader(); albumResults.addAll(download(ddd));
 		 * System.out.println(albumResults);
 		 */
+
+		downloadPhotos(albumIds);
 	}
 }
